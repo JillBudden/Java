@@ -1,0 +1,48 @@
+public class And implements BoolExp {
+
+  private BoolExp e1;
+  private BoolExp e2;
+
+  public And(BoolExp e1, BoolExp e2) {
+    if (e1==null)
+      throw new IllegalArgumentException("e1");
+    if (e2==null)
+      throw new IllegalArgumentException("e2");
+    this.e1 = e1;
+    this.e2 = e2;
+  }
+
+  public BoolExp e1() {
+    return e1;
+  }
+
+  public BoolExp e2() {
+    return e2;
+  }
+
+  public int size() {
+    return 1 + e1.size() + e2.size();
+  }
+
+  public boolean isConstant() {
+    return false;
+  }
+
+  public boolean evaluate() {
+    return e1.evaluate() && e2.evaluate();
+  }
+
+  public String toString() {
+    return "(" + e1 + ")&&(" + e2 + ")";
+  }
+
+  public boolean equals(Object o) {
+    if (o==null)
+      return false;
+    if (!(o instanceof And))
+      return false;
+    And that = (And)o;
+    return e1.equals(that.e1()) && e2.equals(that.e2());
+  }
+
+}
