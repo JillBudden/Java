@@ -1,0 +1,229 @@
+public class Empty implements BST {
+
+    public String root() {
+	throw new UnsupportedOperationException();
+    }
+    
+    public BST lsub() {
+	throw new UnsupportedOperationException();
+    }
+	
+    public BST rsub() {
+	throw new UnsupportedOperationException();
+    }
+
+    public boolean isEmpty() {
+	return true;
+    }
+	
+    public int size() {
+	return 0;
+    }
+	
+    public int height() {
+	return 0;
+    }
+
+    public boolean contains(String t) {
+	return false;
+    }
+ 
+    public String minItem() {
+	throw new UnsupportedOperationException();
+    }
+
+    public String maxItem() {
+	throw new UnsupportedOperationException();
+    }		
+
+    public String toString() {
+	return ".";
+    }
+
+    public BST insert(String s) {
+	return new Node(s);
+    }
+
+    public MList<String> inorder() {
+	return new Nil<String>();
+    }
+
+    public BST noMin() {
+	return this;
+    }
+
+    public BST noMax() {
+	return this;
+    }
+
+    public BST remove(String s) {
+	return this;
+    }
+	
+}
+public class Node implements BST {
+
+    private String root;
+    private BST lsub;
+    private BST rsub;
+
+    public Node(String r, BST lsub, BST rsub) {
+	if (r==null || lsub==null || rsub==null)
+	    throw new IllegalArgumentException("null");
+	this.root = r;
+	this.lsub = lsub;
+	this.rsub = rsub;
+    }
+
+    public Node(String r) {
+	if (r==null)
+	    throw new IllegalArgumentException("null");
+	this.root = r;
+	this.lsub = new Empty();
+	this.rsub = new Empty();
+    }
+	
+    public String root() {
+	return this.root;
+    }
+
+    public BST lsub() {
+	return this.lsub;
+    }
+	
+    public BST rsub() {
+	return this.rsub;
+    }
+
+    public boolean isEmpty() {
+	return false;
+    }
+	
+    public int size() {
+	return 1 + this.lsub.size() + this.rsub.size();
+    }
+	
+    public int height() {
+	return 1 + Math.max(this.lsub.height(), this.rsub.height());
+    }
+
+    public boolean contains(String t) {
+	int c = t.compareTo(this.root);
+	if (c<0)
+	    return this.lsub.contains(t);
+	else if (c>0)
+	    return this.rsub.contains(t);
+	else
+	    return true;
+    }
+ 
+    public String minItem() {
+	if (this.lsub.isEmpty())
+	    return this.root;
+	else
+	    return this.lsub.minItem();
+    }
+
+    public String maxItem() {
+	if (this.rsub.isEmpty())
+	    return this.root;
+	else
+	    return this.rsub.maxItem();			 
+    }		
+
+    public String toString() {
+	if (this.lsub.isEmpty() && this.rsub.isEmpty())
+	    return this.root;
+	else
+	    return this.root + "(" + this.lsub + "," + this.rsub + ")";
+    }
+
+    public BST insert(String s) {
+	int c = s.compareTo(this.root);
+	if (c<0) {
+	    // incorrect --> return this.lsub.insert(s);
+	    return new Node(this.root, this.lsub.insert(s), this.rsub);
+	} else if (c>0) {
+	    return new Node(this.root, this.lsub, this.rsub.insert(s));
+	} else {
+	    return this;
+	}
+    }
+
+    public MList<String> inorder() {
+	return this.lsub.inorder().putLast(this.root).append(this.rsub.inorder());
+    }
+
+    public BST noMin() {
+	if (this.lsub.isEmpty()) {
+	    return this.rsub;
+	} else {
+	    return new Node(this.root, this.lsub.noMin(), this.rsub);
+	}
+    }
+
+    public BST noMax() {
+	if (this.rsub.isEmpty()) {
+	    return this.lsub;
+	} else {
+	    return new Node(this.root, this.lsub, this.rsub.noMax());
+	}
+    }
+
+    public BST remove(String s) {
+	int c = s.compareTo(this.root);
+	if (c<0) {
+	    return new Node(this.root, this.lsub.remove(s), this.rsub);
+	} else if (c>0) {
+	    return new Node(this.root, this.lsub, this.rsub.remove(s));
+	} else if (this.lsub.isEmpty()) {
+	    return this.rsub;
+	} else {
+	    return new Node(this.lsub.maxItem(), this.lsub.noMax(), this.rsub);
+	}
+    }
+	
+}
+public class TestBST {
+
+    static void runTests(BST t, String name) {
+	System.out.println("=== testing " + name + " " + t);
+	if (!t.isEmpty()) {
+	    System.out.println("  root        " + t.root());
+	    System.out.println("  lsub        " + t.lsub());
+	    System.out.println("  rsub        " + t.rsub());
+	}
+	System.out.println("  isEmpty     " + t.isEmpty());
+	System.out.println("  size        " + t.size());
+	System.out.println("  height      " + t.height());
+	System.out.println("  contains(M) " + t.contains("M"));
+	System.out.println("  contains(Z) " + t.contains("Z"));
+	if (!t.isEmpty()) {
+	    System.out.println("  minItem     " + t.minItem());
+	    System.out.println("  maxItem     " + t.maxItem());
+	}
+	System.out.println("  insert(GHI) " + t.insert("GHI"));
+	System.out.println("  inorder     " + t.inorder());
+	System.out.println("  noMin       " + t.noMin());
+	System.out.println("  noMax       " + t.noMax());
+	System.out.println("  remove(M)   " + t.remove("M"));
+	System.out.println("  remove(G)   " + t.remove("G"));
+	System.out.println("  remove(X)   " + t.remove("X"));
+	System.out.println("  remove(Z)   " + t.remove("Z"));
+	System.out.println();
+    }
+
+    public static void main(String[] args) {
+	BST t0 = new Empty();
+	BST t1 = t0.insert("M");
+	BST t2 = t1.insert("G");
+	BST t3 = t2.insert("X");
+	BST t4 = t3.insert("A").insert("Y").insert("W").insert("D").insert("S");
+	runTests(t0,"t0");
+	runTests(t1,"t1");
+	runTests(t2,"t2");
+	runTests(t3,"t3");
+	runTests(t4,"t4");
+    }
+
+}

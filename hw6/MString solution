@@ -1,0 +1,298 @@
+public class MStringObject implements MString {
+
+	private char[] chars;
+
+	public MStringObject(char[] chars) {
+		if (chars==null) {
+			throw new IllegalArgumentException("chars cannot be null");
+		}
+		this.chars = chars;
+	}
+
+	public MStringObject() {
+		this.chars = new char[0];
+	}
+
+	/* another convenience constructor (not part of the homework) */
+	public MStringObject(String s) {
+		if (s==null) {
+			throw new IllegalArgumentException("s cannot be null");
+		}
+		this.chars = s.toCharArray();
+	}
+
+	public int length() {
+		return chars.length;
+	}
+
+	public boolean contains(char c) {
+		for (char d : chars)
+			if (d == c)
+				return true;
+		return false;
+	}
+
+	public int count(char c) {
+		int count = 0;
+		for (char d : chars)
+			if (d==c)
+				count++;
+		return count;
+	}
+
+	public boolean isAllDigits() {
+		for (char c : chars)
+			if (!Character.isDigit(c))
+				return false;
+		return true;
+	}
+
+	public boolean isAllLetters() {
+		for (char c : chars)
+			if (!Character.isLetter(c))
+				return false;
+		return true;
+	}
+
+	public boolean isAllUppers() {
+		for (char c : chars)
+			if (!Character.isUpperCase(c))
+				return false;
+		return true;
+	}
+
+	public boolean isAllLowers() {
+		for (char c : chars)
+			if (!Character.isLowerCase(c))
+				return false;
+		return true;
+	}
+
+	public char charAt(int i) {
+		if (i<0 || i>=chars.length)
+			throw new IllegalArgumentException("out of bounds");
+		return chars[i];
+	}
+
+	public boolean same(MString s) {
+		if (s==null)
+			throw new IllegalArgumentException("s is null");
+		if (this.length() != s.length())
+			return false;
+		for (int i=0; i<s.length(); i++)
+			if (this.chars[i] != s.charAt(i))
+				return false;
+		return true;
+	}
+
+	public boolean equals(Object o) {
+		if (o==null)
+			return false;
+		if (!(o instanceof MString))
+			return false;
+		MString that = (MString)o; /* <-- downcast */
+		return this.same(that);
+	}
+
+	// if you have a string "a", and append "b" to it, you get "ab"
+	public MString append(MString s) {
+		char[] result = new char[chars.length+s.length()];
+		for (int i=0; i<chars.length; i++)
+			result[i] = chars[i];
+		for (int i=0; i<s.length(); i++)
+			result[chars.length+i] = s.charAt(i);
+		return new MStringObject(result);
+	}
+
+	public MString reverse() {
+		char[] result = new char[chars.length];
+		for (int i=chars.length-1; i>=0; i--)
+			result[i] = chars[chars.length-1-i];
+		return new MStringObject(result);
+	}
+
+	public boolean isPalindrome() {
+		return this.same(this.reverse());
+	}
+
+	public Integer indexOfFirst(char c) {
+		for (int i=0; i<chars.length; i++)
+			if (chars[i]==c)
+				return new Integer(i);
+		return null;
+	}
+
+	public String toString() {
+		return new String(this.chars);
+	}
+
+	// HW6 additions
+
+	public boolean startsWith(MString pre) {
+		if (pre.length() > this.length())
+			return false;
+		for (int i=0; i<pre.length(); i++)
+			if (this.chars[i] != pre.charAt(i))
+				return false;
+		return true;
+	}
+	
+	public boolean endsWith(MString suf) {
+		int suflen = suf.length();
+		if (suflen > this.length())
+			return false;
+		for (int i=0; i<suflen; i++) {
+			if (this.chars[this.length()-i-1]!=suf.charAt(suflen-i-1))
+				return false;
+		}
+		return true;
+	}
+
+	/* trim: return a new string without either leading or trailing whitespace */
+	/* use Character.isWhitespace to determine what is whitespace */
+	public MString trim() {
+		int firstNonSpace=-1;
+		int lastNonSpace=-2;
+		for (int i=0; i<this.length(); i++) {
+			if (!Character.isWhitespace(this.chars[i])) {
+				firstNonSpace = i;
+				break;
+			}
+			if (i==this.length()-1)
+				return new MStringObject();
+		}
+		for (int i=this.length()-1; i>=0; i--) {
+			if (!Character.isWhitespace(this.chars[i])) {
+				lastNonSpace = i;
+				break;
+			}
+		}
+		int len = lastNonSpace-firstNonSpace+1;
+		char[] ds = new char[len];
+		for (int i=firstNonSpace; i<=lastNonSpace; i++)
+			ds[i-firstNonSpace]=this.chars[i];
+		return new MStringObject(ds);
+	}
+
+	/* substring: the substring starting at position "start" and length "len" */
+	/* if the substring goes past the end, throw an IndexOutOfBoundsException */
+	public MString substring(int start, int len) {
+		if (start<0)
+			throw new IndexOutOfBoundsException("negative start: " + start);
+	  if (start>=this.length())
+			throw new IndexOutOfBoundsException("start out of range: " + start);
+	  if (len<0)
+			throw new IllegalArgumentException("negative length: " + len);
+	  if ((start+len)>this.length())
+			throw new IndexOutOfBoundsException("too few chars in \"" + this + "\"to reach index " + (start+len-1));
+	  char[] ds = new char[len];
+	  for (int i=0; i<len; i++)
+			ds[i] = this.chars[start+i];
+	  return new MStringObject(ds);
+	}
+
+	/* delete: remove all occurrences of the given character */
+	/* ex: deleting 'x' from "axbxcx" should produce a new MString "abc" */
+	public MString delete(char c) {
+		int n = this.count(c);
+		char[] ds = new char[this.chars.length-n];
+		for (int i=0, j=0; i<this.chars.length; i++)
+			if (this.chars[i]!=c)
+				ds[j++]=this.chars[i];
+		return new MStringObject(ds);
+	}
+
+	/* substitute: replace every occurrence of c1 with c2 */
+	/* ex: given "axbxcx", if c1 is 'x' and c2 is 'y', the result is "aybycy" */
+	public MString substitute(char c1, char c2) {
+		if (c1==c2)
+			return this;
+		char[] ds = new char[this.chars.length];
+		for (int i=0; i<this.chars.length; i++)
+			ds[i] = (this.chars[i]==c1 ? c2 : this.chars[i]);
+		return new MStringObject(ds);
+	}
+	
+}
+public class TestMString {
+
+    private static void runTests(MString s, String nameOfString) {
+	System.out.println(nameOfString + " is \"" + s + "\"");
+	
+	System.out.println("  length " + s.length());
+	System.out.println("  contains('a') " + s.contains('a'));
+	System.out.println("  contains('R') " + s.contains('R'));
+	System.out.println("  count('2') " + s.count('2'));
+	System.out.println("  count('a') " + s.count('a'));
+	System.out.println("  isAllDigits " + s.isAllDigits());
+	System.out.println("  isAllLetters " + s.isAllLetters());
+	System.out.println("  isAllUppers " + s.isAllUppers());
+	System.out.println("  isAllLowers " + s.isAllLowers());
+	
+	try {
+	    System.out.println("  charAt(0) " + s.charAt(0));
+	} catch (Exception e) {
+	    System.out.println(">> charAt 0 raised exception");
+	}
+
+	try {
+	    System.out.println("  charAt(4) " + s.charAt(4));
+	} catch (Exception e) {
+	    System.out.println(">> charAt 4 raised exception");
+	}
+
+	MString R2D2 = new MStringObject("R2D2");
+
+	System.out.println("  same as itself " + s.same(s));
+	System.out.println("  same(\"R2D2\") " + s.same(R2D2));
+	System.out.println("  equals itself " + s.equals(s));
+	System.out.println("  equals(\"R2D2\") " + s.equals(R2D2));
+	System.out.println("  equals(new Integer(99)) " + s.equals(new Integer(99)));
+
+	System.out.println("  append itself " + s.append(s));
+	System.out.println("  append(\"R2D2\") " + s.append(R2D2));
+
+	System.out.println("  reverse " + s.reverse());
+	System.out.println("  isPalindrome " + s.isPalindrome());
+	System.out.println("  indexOfFirst('a') " + s.indexOfFirst('a'));
+	System.out.println("  indexOfFirst('T') " + s.indexOfFirst('T'));
+
+	System.out.println("  startsWith(a)     " + s.startsWith(new MStringObject("a")));
+	System.out.println("  startsWith(TU)    " + s.startsWith(new MStringObject("TU")));
+	System.out.println("  endsWith(a)       " + s.endsWith(new MStringObject("a")));
+	System.out.println("  endsWith(XX)      " + s.endsWith(new MStringObject("xx")));
+	System.out.println("  trim              " + s.trim());
+	try {
+	    System.out.println("  substring(0,2)    " + s.substring(0,2));
+	} catch (Exception e) {
+	    System.out.println("*** exception while running substring: " + e);
+	}
+	System.out.println("  delete(a)         " + s.delete('a'));
+	System.out.println("  substitute(a,@)   " + s.substitute('a','@'));
+			   
+	System.out.println();
+    }
+
+    public static void main(String[] args) {
+
+	MString s0 = new MStringObject();
+	MString s1 = new MStringObject("abcd");
+	MString s2 = new MStringObject("TUVW");
+	MString s3 = new MStringObject("1234");
+	MString s4 = new MStringObject("R2D2");
+	MString s5 = new MStringObject("racecar");
+	MString s6 = new MStringObject("aaaaa");
+	MString s7 = new MStringObject(" A B C   ");
+
+	runTests(s0,"s0");
+	runTests(s1,"s1");
+	runTests(s2,"s2");
+	runTests(s3,"s3");
+	runTests(s4,"s4");
+	runTests(s5,"s5");
+	runTests(s6,"s6");
+	runTests(s7,"s7");
+
+    }
+
+}
